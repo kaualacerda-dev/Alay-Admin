@@ -5,7 +5,7 @@ import { HeaderComponent } from "../../components/header/header";
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, HeaderComponent],
+  imports: [],
   templateUrl: './home.html',
 })
 export class HomeComponent {}
