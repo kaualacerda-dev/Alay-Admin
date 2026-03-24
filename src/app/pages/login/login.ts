@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,36 +13,31 @@ import { FormsModule } from '@angular/forms';
 export class LoginComponent {
   email = '';
   password = '';
-  errorMessage =  '';
+  errorMessage = '';
 
   constructor(
     private authService: AuthService,
     private router: Router,
   ) {}
 
-login() {
-
-  this.authService.login(this.email, this.password)
-    .subscribe({
-
+  login() {
+    this.authService.login(this.email, this.password).subscribe({
       next: (response: any) => {
-        console.log("clico no login")
-        this.authService.saveToken(response.access_token);
-        this.router.navigate(['/home']);
+        console.log('RESPOSTA DA API:', response);
+        
+        
+        this.authService.saveToken(response.accessToken);
 
+        this.router.navigate(['/home']);
       },
 
       error: () => {
-
-        this.errorMessage = "Email ou senha inválidos";
+        this.errorMessage = 'Email ou senha inválidos';
 
         setTimeout(() => {
-          this.errorMessage = "";
+          this.errorMessage = '';
         }, 1000);
-
-      }
-
+      },
     });
   }
-
 }
