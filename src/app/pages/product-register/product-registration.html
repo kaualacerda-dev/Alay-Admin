@@ -26,12 +26,14 @@
           </p>
         </div>
 
-        <form class="grid gap-5 sm:grid-cols-2">
+        <div class="grid gap-5 sm:grid-cols-2">
           <div class="sm:col-span-2">
             <label for="product-name" class="mb-2 block text-sm font-medium text-zinc-700">Nome do produto</label>
             <input
               id="product-name"
               type="text"
+              [(ngModel)]="name"
+              name="name"
               placeholder="Ex.: Camiseta Essential"
               class="h-12 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900"
             />
@@ -42,6 +44,8 @@
             <input
               id="sku"
               type="text"
+              [(ngModel)]="sku"
+              name="sku"
               placeholder="EXS-001"
               class="h-12 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900"
             />
@@ -61,7 +65,11 @@
             <label for="price" class="mb-2 block text-sm font-medium text-zinc-700">Preco</label>
             <input
               id="price"
-              type="text"
+              type="number"
+              [(ngModel)]="price"
+              name="price"
+              min="0"
+              step="0.01"
               placeholder="R$ 0,00"
               class="h-12 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900"
             />
@@ -72,6 +80,8 @@
             <input
               id="quantity"
               type="number"
+              [(ngModel)]="stock"
+              name="stock"
               min="0"
               placeholder="0"
               class="h-12 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900"
@@ -83,26 +93,42 @@
             <textarea
               id="description"
               rows="5"
+              [(ngModel)]="description"
+              name="description"
               placeholder="Descreva o produto de forma breve."
               class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-900"
             ></textarea>
           </div>
 
+          <div
+            *ngIf="message"
+            class="sm:col-span-2 rounded-2xl px-4 py-3 text-sm"
+            [class.bg-emerald-50]="messageType === 'success'"
+            [class.text-emerald-700]="messageType === 'success'"
+            [class.bg-red-50]="messageType === 'error'"
+            [class.text-red-700]="messageType === 'error'"
+          >
+            {{ message }}
+          </div>
+
           <div class="sm:col-span-2 flex gap-3">
             <button
               type="button"
+              (click)="saveProduct()"
+              [disabled]="loading"
               class="inline-flex h-12 items-center justify-center rounded-xl bg-zinc-900 px-6 text-sm font-medium text-white transition hover:bg-zinc-800"
             >
-              Salvar produto
+              {{ loading ? 'Salvando...' : 'Salvar produto' }}
             </button>
             <button
               type="button"
+              (click)="clearFields()"
               class="inline-flex h-12 items-center justify-center rounded-xl border border-zinc-300 px-6 text-sm font-medium text-zinc-700 transition hover:border-zinc-900 hover:text-zinc-900"
             >
               Limpar campos
             </button>
           </div>
-        </form>
+        </div>
       </section>
 
       <aside class="space-y-6">
