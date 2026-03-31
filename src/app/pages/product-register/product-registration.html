@@ -51,14 +51,47 @@
             />
           </div>
 
-          <div>
-            <label for="category" class="mb-2 block text-sm font-medium text-zinc-700">Categoria</label>
+          <div class="sm:col-span-2">
+            <div class="mb-2 flex items-center justify-between gap-3">
+              <label for="product-image" class="block text-sm font-medium text-zinc-700">Imagem do produto</label>
+              <button
+                *ngIf="imagePreviewUrl"
+                type="button"
+                (click)="removeImage(imageInput)"
+                class="text-sm font-medium text-zinc-500 transition hover:text-zinc-900"
+              >
+                Remover imagem
+              </button>
+            </div>
+
             <input
-              id="category"
-              type="text"
-              placeholder="Vestuario"
-              class="h-12 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900"
+              #imageInput
+              id="product-image"
+              type="file"
+              accept="image/*"
+              (change)="onImageSelected($event)"
+              class="hidden"
             />
+
+            <label
+              for="product-image"
+              class="flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-8 text-center transition hover:border-zinc-900 hover:bg-white"
+            >
+              <ng-container *ngIf="imagePreviewUrl; else uploadPlaceholder">
+                <img
+                  [src]="imagePreviewUrl"
+                  [alt]="imageName || 'Preview da imagem do produto'"
+                  class="h-28 w-28 rounded-2xl object-cover shadow-sm"
+                />
+                <strong class="mt-4 block text-sm font-medium text-zinc-800">{{ imageName || 'Imagem carregada' }}</strong>
+                <span class="mt-1 text-sm text-zinc-500">Clique para trocar a imagem.</span>
+              </ng-container>
+            </label>
+
+            <ng-template #uploadPlaceholder>
+              <span class="text-sm font-medium text-zinc-800">Clique para selecionar uma imagem</span>
+              <span class="mt-2 text-sm text-zinc-500">PNG, JPG ou WEBP com ate 5 MB.</span>
+            </ng-template>
           </div>
 
           <div>

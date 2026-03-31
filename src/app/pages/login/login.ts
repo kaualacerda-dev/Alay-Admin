@@ -23,7 +23,6 @@ export class LoginComponent {
   login() {
     this.authService.login(this.email, this.password).subscribe({
       next: (response: any) => {
-        console.log('RESPOSTA DA API:', response);
         
         
         this.authService.saveToken(response.accessToken);

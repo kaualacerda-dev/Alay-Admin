@@ -8,8 +8,11 @@ import { environment } from '../../environments/environment';
 export class ProductService {
   constructor(private http: HttpClient) {}
 
-  createProducts(product: CreateProductPayload) {
-    return this.http.post(`${environment.apiUrl}/product/create`, product);
+  createProducts(formData: FormData) {
+    return this.http.post<{ product: Product }>(
+      `${environment.apiUrl}/product/create`,
+      formData,
+    );
   }
 
   getProducts() {
@@ -25,14 +28,6 @@ export class ProductService {
 
 export interface Product {
   id: number;
-  name: string;
-  sku: string;
-  stock: number;
-  price: number;
-  description: string;
-}
-
-export interface CreateProductPayload {
   name: string;
   sku: string;
   stock: number;
