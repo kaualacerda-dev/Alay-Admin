@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnDestroy } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -11,36 +11,48 @@ import { ProductService } from '../../core/services/product.service';
   imports: [RouterLink, CommonModule, FormsModule],
   templateUrl: './product-registration.html',
 })
-export class ProductRegistrationComponent {
+export class ProductRegistrationComponent implements OnDestroy {
   name = '';
   sku = '';
   stock: number | null = null;
   price: number | null = null;
   description = '';
+  imagePreviewUrl = '';
+  imageName = '';
+  selectedImage: File | null = null;
 
   loading = false;
   message = '';
   messageType = '';
+  private redirectTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private router: Router,
+  ) {}
 
   saveProduct() {
     this.message = '';
     this.messageType = '';
 
-    const product = {
-      name: this.name,
-      sku: this.sku,
-      stock: Number(this.stock),
-      price: Number(this.price),
-      description: this.description,
-      imageUrl: '',
-    };
+    if (!this.selectedImage) {
+      this.message = 'Adicione uma imagem do produto antes de salvar.';
+      this.messageType = 'error';
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('name', this.name.trim());
+    formData.append('sku', this.sku.trim());
+    formData.append('stock', String(Number(this.stock)));
+    formData.append('price', String(Number(this.price)));
+    formData.append('description', this.description.trim());
+    formData.append('image', this.selectedImage);
 
     this.loading = true;
 
     this.productService
-      .createProducts(product)
+      .createProducts(formData)
       .pipe(
         finalize(() => {
           this.loading = false;
@@ -51,6 +63,9 @@ export class ProductRegistrationComponent {
           this.clearFields();
           this.message = 'Produto criado com sucesso.';
           this.messageType = 'success';
+          this.redirectTimeoutId = setTimeout(() => {
+            void this.router.navigate(['/home']);
+          }, 2500);
         },
         error: (error) => {
           this.message =
@@ -60,11 +75,68 @@ export class ProductRegistrationComponent {
       });
   }
 
+  onImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      this.removeImage(input);
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      this.message = 'Selecione um arquivo de imagem valido.';
+      this.messageType = 'error';
+      this.removeImage(input);
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.message = 'A imagem deve ter no maximo 5 MB.';
+      this.messageType = 'error';
+      this.removeImage(input);
+      return;
+    }
+
+    this.revokeImagePreview();
+    this.selectedImage = file;
+    this.imagePreviewUrl = URL.createObjectURL(file);
+    this.imageName = file.name;
+    this.message = '';
+    this.messageType = '';
+  }
+
+  removeImage(input?: HTMLInputElement) {
+    this.revokeImagePreview();
+    this.selectedImage = null;
+    this.imageName = '';
+
+    if (input) {
+      input.value = '';
+    }
+  }
+
   clearFields() {
     this.name = '';
     this.sku = '';
     this.stock = null;
     this.price = null;
     this.description = '';
+    this.removeImage();
+  }
+
+  ngOnDestroy() {
+    this.revokeImagePreview();
+
+    if (this.redirectTimeoutId) {
+      clearTimeout(this.redirectTimeoutId);
+    }
+  }
+
+  private revokeImagePreview() {
+    if (this.imagePreviewUrl) {
+      URL.revokeObjectURL(this.imagePreviewUrl);
+      this.imagePreviewUrl = '';
+    }
   }
 }
