@@ -51,6 +51,19 @@
             />
           </div>
 
+          <div>
+            <label for="category" class="mb-2 block text-sm font-medium text-zinc-700">Categoria</label>
+            <select
+              id="category"
+              [(ngModel)]="category"
+              name="category"
+              class="h-12 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900"
+            >
+              <option value="" disabled>Selecione uma categoria</option>
+              <option *ngFor="let option of categories" [value]="option">{{ option }}</option>
+            </select>
+          </div>
+
           <div class="sm:col-span-2">
             <div class="mb-2 flex items-center justify-between gap-3">
               <label for="product-image" class="block text-sm font-medium text-zinc-700">Imagem do produto</label>

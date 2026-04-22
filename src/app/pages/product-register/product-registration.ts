@@ -12,8 +12,11 @@ import { ProductService } from '../../core/services/product.service';
   templateUrl: './product-registration.html',
 })
 export class ProductRegistrationComponent implements OnDestroy {
+  readonly categories = ['Camisetas', 'Bermudas', 'Calças', 'Moletons'];
+
   name = '';
   sku = '';
+  category = '';
   stock: number | null = null;
   price: number | null = null;
   description = '';
@@ -41,9 +44,16 @@ export class ProductRegistrationComponent implements OnDestroy {
       return;
     }
 
+    if (!this.category) {
+      this.message = 'Selecione uma categoria antes de salvar.';
+      this.messageType = 'error';
+      return;
+    }
+
     const formData = new FormData();
     formData.append('name', this.name.trim());
     formData.append('sku', this.sku.trim());
+    formData.append('category', this.category);
     formData.append('stock', String(Number(this.stock)));
     formData.append('price', String(Number(this.price)));
     formData.append('description', this.description.trim());
@@ -119,6 +129,7 @@ export class ProductRegistrationComponent implements OnDestroy {
   clearFields() {
     this.name = '';
     this.sku = '';
+    this.category = '';
     this.stock = null;
     this.price = null;
     this.description = '';
