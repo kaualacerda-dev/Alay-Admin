@@ -1,7 +1,7 @@
-import { Component, OnDestroy } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { ProductService } from '../../core/services/product.service';
 
@@ -27,14 +27,13 @@ export class ProductRegistrationComponent implements OnDestroy {
   loading = false;
   message = '';
   messageType = '';
-  private redirectTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private productService: ProductService,
-    private router: Router,
+    private changeDetector: ChangeDetectorRef,
   ) {}
 
-  saveProduct() {
+  saveProduct(productForm: NgForm, imageInput: HTMLInputElement) {
     this.message = '';
     this.messageType = '';
 
@@ -50,37 +49,28 @@ export class ProductRegistrationComponent implements OnDestroy {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('name', this.name.trim());
-    formData.append('sku', this.sku.trim());
-    formData.append('category', this.category);
-    formData.append('stock', String(Number(this.stock)));
-    formData.append('price', String(Number(this.price)));
-    formData.append('description', this.description.trim());
-    formData.append('image', this.selectedImage);
-
     this.loading = true;
 
     this.productService
-      .createProducts(formData)
+      .createProducts(this.createProductFormData())
       .pipe(
         finalize(() => {
           this.loading = false;
+          this.changeDetector.detectChanges();
         }),
       )
       .subscribe({
         next: () => {
-          this.clearFields();
+          this.clearFields(productForm, imageInput);
           this.message = 'Produto criado com sucesso.';
           this.messageType = 'success';
-          this.redirectTimeoutId = setTimeout(() => {
-            void this.router.navigate(['/home']);
-          }, 2500);
+          this.changeDetector.detectChanges();
         },
         error: (error) => {
           this.message =
             error?.error?.message || 'Nao foi possivel criar o produto.';
           this.messageType = 'error';
+          this.changeDetector.detectChanges();
         },
       });
   }
@@ -126,22 +116,38 @@ export class ProductRegistrationComponent implements OnDestroy {
     }
   }
 
-  clearFields() {
-    this.name = '';
-    this.sku = '';
-    this.category = '';
-    this.stock = null;
-    this.price = null;
-    this.description = '';
-    this.removeImage();
+  clearFields(
+    productForm?: NgForm,
+    imageInput?: HTMLInputElement,
+    clearMessage = false,
+  ) {
+    const emptyProduct = {
+      name: '',
+      sku: '',
+      category: '',
+      stock: null,
+      price: null,
+      description: '',
+    };
+
+    this.name = emptyProduct.name;
+    this.sku = emptyProduct.sku;
+    this.category = emptyProduct.category;
+    this.stock = emptyProduct.stock;
+    this.price = emptyProduct.price;
+    this.description = emptyProduct.description;
+
+    productForm?.resetForm(emptyProduct);
+    this.removeImage(imageInput);
+
+    if (clearMessage) {
+      this.message = '';
+      this.messageType = '';
+    }
   }
 
   ngOnDestroy() {
     this.revokeImagePreview();
-
-    if (this.redirectTimeoutId) {
-      clearTimeout(this.redirectTimeoutId);
-    }
   }
 
   private revokeImagePreview() {
@@ -149,5 +155,22 @@ export class ProductRegistrationComponent implements OnDestroy {
       URL.revokeObjectURL(this.imagePreviewUrl);
       this.imagePreviewUrl = '';
     }
+  }
+
+  private createProductFormData() {
+    const formData = new FormData();
+
+    formData.append('name', this.name.trim());
+    formData.append('sku', this.sku.trim());
+    formData.append('category', this.category);
+    formData.append('stock', String(Number(this.stock)));
+    formData.append('price', String(Number(this.price)));
+    formData.append('description', this.description.trim());
+
+    if (this.selectedImage) {
+      formData.append('image', this.selectedImage);
+    }
+
+    return formData;
   }
 }

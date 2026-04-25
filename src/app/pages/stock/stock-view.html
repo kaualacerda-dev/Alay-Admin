@@ -84,33 +84,34 @@
       <p>{{ error }}</p>
     </div>
 
-    <div *ngIf="products$ | async as products">
-      <div *ngIf="products.length > 0; else semProdutos">
-        <div
-          class="flex flex-row p-5 mt-2 w-[100%] bg-white border border-zinc-200 rounded-2xl"
-          *ngFor="let product of products"
-        >
-          <div class="w-[30%] ">
-            {{ product.name }}
-          </div>
+    <div *ngIf="!loading && products.length > 0; else semProdutos">
+      <div
+        class="flex flex-row p-5 mt-2 w-[100%] bg-white border border-zinc-200 rounded-2xl"
+        *ngFor="let product of products"
+      >
+        <div class="w-[30%] ">
+          {{ product.name }}
+        </div>
 
-          <div class="flex justify-center items-center w-[24%] ">
-            {{ product.price }}
-          </div>
+        <div class="flex justify-center items-center w-[24%] ">
+          {{ product.price | currency: 'BRL' }}
+        </div>
 
-          <div class="flex justify-center items-center w-[16%] ">
-            {{ product.sku }}
-          </div>
+        <div class="flex justify-center items-center w-[16%] ">
+          {{ product.sku }}
+        </div>
 
-          <div class="flex justify-center items-center w-[30%] ">
-            {{ product.stock }}
-          </div>
+        <div class="flex justify-center items-center w-[30%] ">
+          {{ product.stock }}
         </div>
       </div>
     </div>
 
     <ng-template #semProdutos>
-      <div class="flex justify-center items-center w-[100%] h-[40px]">
+      <div
+        *ngIf="!loading && !error"
+        class="flex justify-center items-center w-[100%] h-[40px]"
+      >
         <p>Nenhum produto disponivel</p>
       </div>
     </ng-template>
