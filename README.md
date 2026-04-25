@@ -1,59 +1,102 @@
-# AdminControll
+# Alay Admin
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.1.
+Projeto feito para cadastro de produtos e controle de estoque.
 
-## Development server
+O projeto faz ligação com mais um front em Next para uso do usuário final:
+https://github.com/kaualacerda-dev/Alay-front
 
-To start a local development server, run:
+E compartilha o mesmo backend que o projeto em Next https://github.com/kaualacerda-dev/Alay-Backend. No ambiente local, a API está configurada para rodar em `http://localhost:3001`. Em produção, a API está configurada para usar `https://alay-backend.onrender.com`, porém o login em produção está privado, caso queira testar, entrar em contato.
+
+- Link do projeto em Prod https://alay-admin.onrender.com
+
+## Sobre o projeto
+
+O Alay Admin é uma aplicação administrativa feita em Angular. A ideia principal é permitir que o administrador consiga gerenciar os produtos da loja, cadastrar novos itens e visualizar o estoque disponível.
+
+Esse projeto funciona junto com outros dois pontos da aplicação:
+
+- Frontend do usuário final em Next.js, usado para a experiência da loja.
+- Backend compartilhado, responsável por autenticação, cadastro de produtos, estoque e comunicação com o banco de dados.
+
+## Funcionalidades
+
+- Login de administrador.
+- Cadastro de produtos.
+- Upload de imagem do produto.
+- Seleção de categoria do produto.
+- Controle de preço, SKU, descrição e quantidade em estoque.
+- Visualização dos produtos cadastrados.
+- Busca de produtos pelo nome.
+- Exibição do preço formatado em real brasileiro.
+
+## Tecnologias utilizadas
+
+- Angular
+- TypeScript
+- RxJS
+- Angular Forms
+- Angular Router
+- HttpClient
+- Tailwind CSS
+
+## Rotas principais
+
+- `/login`: tela de login.
+- `/home`: tela inicial após o login.
+- `/cadastro-produtos`: tela para cadastrar produtos.
+- `/estoque`: tela para visualizar e pesquisar produtos em estoque.
+
+## Como rodar o projeto
+
+Instale as dependências:
 
 ```bash
-ng serve
+npm install
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Rode o projeto em modo de desenvolvimento:
 
 ```bash
-ng generate component component-name
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Depois, acesse no navegador:
+
+```text
+http://localhost:4200
+```
+
+## Build
+
+Para gerar a versão de produção:
 
 ```bash
-ng generate --help
+npm run build
 ```
 
-## Building
+O build será gerado na pasta `dist/admin_controll`.
 
-To build the project run:
+## Testes
+
+Para rodar os testes:
 
 ```bash
-ng build
+npm test
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Configuração da API
 
-## Running unit tests
+As URLs da API ficam nos arquivos de ambiente do Angular:
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+- `src/app/environments/environment.ts`: usado no desenvolvimento local.
+- `src/app/environments/environment.production.ts`: usado no build de produção.
 
-```bash
-ng test
+Exemplo local:
+
+```ts
+export const environment = {
+  apiUrl: 'http://localhost:3001'
+};
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+O frontend se comunica com o backend usando services, como `AuthService` e `ProductService`.
