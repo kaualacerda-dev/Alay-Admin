@@ -1,18 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProductService, Product } from '../../core/services/product.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  Observable,
-  BehaviorSubject,
-  switchMap,
-  catchError,
-  of,
-  tap,
-  map,
-  distinctUntilChanged,
-} from 'rxjs';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-stock-view',
@@ -24,45 +15,91 @@ export class StockViewComponent implements OnInit {
   totalProducts = 0;
 
   searchName = '';
-
-  private searchSubject = new BehaviorSubject<string>('');
-
-  products$!: Observable<Product[]>;
+  products: Product[] = [];
 
   loading = false;
   error: string | null = null;
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private changeDetector: ChangeDetectorRef,
+  ) {}
 
   ngOnInit() {
-    this.products$ = this.searchSubject.pipe(
-      map((term) => term.trim()),
-      distinctUntilChanged(),
-      tap(() => {
-        this.loading = true;
-        this.error = null;
-      }),
-      switchMap((term) =>
-        (term ? this.productService.searchProduct(term) : this.productService.getProducts()).pipe(
-          tap((res) => {
-            this.totalProducts = res.meta.total;
-          }),
-          map((res) => res.data),
-          catchError(() => {
-            this.error = 'Nao foi possivel carregar os produtos.';
-            return of([]);
-          }),
-          tap(() => {
-            this.loading = false;
-          }),
-        ),
-      ),
-    );
+    this.loadProducts();
   }
 
   searchProduct() {
-    this.searchSubject.next(this.searchName);
-
+    this.loadProducts(this.searchName);
     this.searchName = '';
+  }
+
+  loadProducts(searchTerm = '') {
+    const term = searchTerm.trim();
+    const request = term
+      ? this.productService.searchProduct(term)
+      : this.productService.getProducts();
+
+    this.loading = true;
+    this.error = null;
+
+    request
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.changeDetector.detectChanges();
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          const normalizedResponse = this.normalizeProductResponse(response);
+
+          this.products = normalizedResponse.products;
+          this.totalProducts = normalizedResponse.total;
+          this.changeDetector.detectChanges();
+        },
+        error: () => {
+          this.products = [];
+          this.totalProducts = 0;
+          this.error = 'Nao foi possivel carregar os produtos.';
+          this.changeDetector.detectChanges();
+        },
+      });
+  }
+
+  private normalizeProductResponse(response: unknown) {
+    if (Array.isArray(response)) {
+      return {
+        products: response as Product[],
+        total: response.length,
+      };
+    }
+
+    if (
+      response &&
+      typeof response === 'object' &&
+      'data' in response &&
+      Array.isArray(response.data)
+    ) {
+      const products = response.data as Product[];
+      const total =
+        'meta' in response &&
+        response.meta &&
+        typeof response.meta === 'object' &&
+        'total' in response.meta &&
+        typeof response.meta.total === 'number'
+          ? response.meta.total
+          : products.length;
+
+      return {
+        products,
+        total,
+      };
+    }
+
+    return {
+      products: [],
+      total: 0,
+    };
   }
 }
