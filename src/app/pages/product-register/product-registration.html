@@ -20,18 +20,24 @@
       <section class="rounded-3xl border border-zinc-200 bg-white p-6">
         <div class="mb-8">
           <p class="text-sm font-medium text-zinc-500">Novo item</p>
-          <h2 class="mt-1 text-xl font-semibold">Informacoes principais</h2>
+          <h2 class="mt-1 text-xl font-semibold">Informações principais</h2>
           <p class="mt-2 text-sm leading-6 text-zinc-500">
-            Cadastre um novo produto com os dados essenciais para a operacao da loja.
+            Cadastre um novo produto com os dados essenciais para a operação da loja.
           </p>
         </div>
 
-        <form class="grid gap-5 sm:grid-cols-2">
+        <form
+          #productForm="ngForm"
+          (ngSubmit)="saveProduct(productForm, imageInput)"
+          class="grid gap-5 sm:grid-cols-2"
+        >
           <div class="sm:col-span-2">
             <label for="product-name" class="mb-2 block text-sm font-medium text-zinc-700">Nome do produto</label>
             <input
               id="product-name"
               type="text"
+              [(ngModel)]="name"
+              name="name"
               placeholder="Ex.: Camiseta Essential"
               class="h-12 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900"
             />
@@ -42,6 +48,8 @@
             <input
               id="sku"
               type="text"
+              [(ngModel)]="sku"
+              name="sku"
               placeholder="EXS-001"
               class="h-12 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900"
             />
@@ -49,19 +57,69 @@
 
           <div>
             <label for="category" class="mb-2 block text-sm font-medium text-zinc-700">Categoria</label>
-            <input
+            <select
               id="category"
-              type="text"
-              placeholder="Vestuario"
+              [(ngModel)]="category"
+              name="category"
               class="h-12 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900"
+            >
+              <option value="" disabled>Selecione uma categoria</option>
+              <option *ngFor="let option of categories" [value]="option">{{ option }}</option>
+            </select>
+          </div>
+
+          <div class="sm:col-span-2">
+            <div class="mb-2 flex items-center justify-between gap-3">
+              <label for="product-image" class="block text-sm font-medium text-zinc-700">Imagem do produto</label>
+              <button
+                *ngIf="imagePreviewUrl"
+                type="button"
+                (click)="removeImage(imageInput)"
+                class="text-sm font-medium text-zinc-500 transition hover:text-zinc-900"
+              >
+                Remover imagem
+              </button>
+            </div>
+
+            <input
+              #imageInput
+              id="product-image"
+              type="file"
+              accept="image/*"
+              (change)="onImageSelected($event)"
+              class="hidden"
             />
+
+            <label
+              for="product-image"
+              class="flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-8 text-center transition hover:border-zinc-900 hover:bg-white"
+            >
+              <ng-container *ngIf="imagePreviewUrl; else uploadPlaceholder">
+                <img
+                  [src]="imagePreviewUrl"
+                  [alt]="imageName || 'Prévia da imagem do produto'"
+                  class="h-28 w-28 rounded-2xl object-cover shadow-sm"
+                />
+                <strong class="mt-4 block text-sm font-medium text-zinc-800">{{ imageName || 'Imagem carregada' }}</strong>
+                <span class="mt-1 text-sm text-zinc-500">Clique para trocar a imagem.</span>
+              </ng-container>
+            </label>
+
+            <ng-template #uploadPlaceholder>
+              <span class="text-sm font-medium text-zinc-800">Clique para selecionar uma imagem</span>
+              <span class="mt-2 text-sm text-zinc-500">PNG, JPG ou WEBP com até 5 MB.</span>
+            </ng-template>
           </div>
 
           <div>
-            <label for="price" class="mb-2 block text-sm font-medium text-zinc-700">Preco</label>
+            <label for="price" class="mb-2 block text-sm font-medium text-zinc-700">Preço</label>
             <input
               id="price"
-              type="text"
+              type="number"
+              [(ngModel)]="price"
+              name="price"
+              min="0"
+              step="0.01"
               placeholder="R$ 0,00"
               class="h-12 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900"
             />
@@ -72,6 +130,8 @@
             <input
               id="quantity"
               type="number"
+              [(ngModel)]="stock"
+              name="stock"
               min="0"
               placeholder="0"
               class="h-12 w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-zinc-900"
@@ -79,24 +139,39 @@
           </div>
 
           <div class="sm:col-span-2">
-            <label for="description" class="mb-2 block text-sm font-medium text-zinc-700">Descricao</label>
+            <label for="description" class="mb-2 block text-sm font-medium text-zinc-700">Descrição</label>
             <textarea
               id="description"
               rows="5"
+              [(ngModel)]="description"
+              name="description"
               placeholder="Descreva o produto de forma breve."
               class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-900"
             ></textarea>
           </div>
 
+          <div
+            *ngIf="message"
+            class="sm:col-span-2 rounded-2xl px-4 py-3 text-sm"
+            [class.bg-emerald-50]="messageType === 'success'"
+            [class.text-emerald-700]="messageType === 'success'"
+            [class.bg-red-50]="messageType === 'error'"
+            [class.text-red-700]="messageType === 'error'"
+          >
+            {{ message }}
+          </div>
+
           <div class="sm:col-span-2 flex gap-3">
             <button
-              type="button"
+              type="submit"
+              [disabled]="loading"
               class="inline-flex h-12 items-center justify-center rounded-xl bg-zinc-900 px-6 text-sm font-medium text-white transition hover:bg-zinc-800"
             >
-              Salvar produto
+              {{ loading ? 'Salvando...' : 'Salvar produto' }}
             </button>
             <button
               type="button"
+              (click)="clearFields(productForm, imageInput, true)"
               class="inline-flex h-12 items-center justify-center rounded-xl border border-zinc-300 px-6 text-sm font-medium text-zinc-700 transition hover:border-zinc-900 hover:text-zinc-900"
             >
               Limpar campos
@@ -106,20 +181,10 @@
       </section>
 
       <aside class="space-y-6">
-        <section class="rounded-3xl border border-zinc-200 bg-white p-6">
-          <p class="text-sm font-medium text-zinc-500">Boas praticas</p>
-          <h2 class="mt-1 text-xl font-semibold">Checklist rapido</h2>
-
-          <div class="mt-5 space-y-3">
-            <div class="rounded-2xl bg-zinc-50 p-4 text-sm text-zinc-700">Use nomes curtos e objetivos.</div>
-            <div class="rounded-2xl bg-zinc-50 p-4 text-sm text-zinc-700">Padronize o SKU para facilitar buscas.</div>
-            <div class="rounded-2xl bg-zinc-50 p-4 text-sm text-zinc-700">Revise preco e estoque antes de publicar.</div>
-          </div>
-        </section>
 
         <section class="rounded-3xl border border-zinc-200 bg-white p-6">
           <p class="text-sm font-medium text-zinc-500">Resumo</p>
-          <h2 class="mt-1 text-xl font-semibold">Status do catalogo</h2>
+          <h2 class="mt-1 text-xl font-semibold">Status do catálogo</h2>
 
           <div class="mt-5 grid gap-4 sm:grid-cols-2">
             <div class="rounded-2xl border border-zinc-200 p-4">
@@ -129,6 +194,7 @@
             <div class="rounded-2xl border border-zinc-200 p-4">
               <p class="text-sm text-zinc-500">Rascunhos</p>
               <strong class="mt-2 block text-2xl font-semibold">14</strong>
+              
             </div>
           </div>
         </section>

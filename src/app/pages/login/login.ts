@@ -1,30 +1,42 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth.service'
-
+import { AuthService } from '../../core/services/auth.service';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [RouterLink,],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
 })
-
 export class LoginComponent {
-
   email = '';
   password = '';
+  errorMessage = '';
 
-  constructor( private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
-  login () { 
+  login() {
+    this.authService.login(this.email, this.password).subscribe({
+      next: (response: any) => {
+        
+        
+        this.authService.saveToken(response.accessToken);
 
-    this.authService.login(this.email, this.password)
-      .subscribe((Response: any ) => {
-        this.authService.saveToken(Response.access_token);
-      })
+        this.router.navigate(['/home']);
+      },
 
-    
+      error: () => {
+        this.errorMessage = 'E-mail ou senha inválidos.';
+
+        setTimeout(() => {
+          this.errorMessage = '';
+        }, 1000);
+      },
+    });
   }
-
 }
