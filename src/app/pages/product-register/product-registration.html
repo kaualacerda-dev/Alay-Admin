@@ -20,9 +20,9 @@
       <section class="rounded-3xl border border-zinc-200 bg-white p-6">
         <div class="mb-8">
           <p class="text-sm font-medium text-zinc-500">Novo item</p>
-          <h2 class="mt-1 text-xl font-semibold">Informacoes principais</h2>
+          <h2 class="mt-1 text-xl font-semibold">Informações principais</h2>
           <p class="mt-2 text-sm leading-6 text-zinc-500">
-            Cadastre um novo produto com os dados essenciais para a operacao da loja.
+            Cadastre um novo produto com os dados essenciais para a operação da loja.
           </p>
         </div>
 
@@ -97,7 +97,7 @@
               <ng-container *ngIf="imagePreviewUrl; else uploadPlaceholder">
                 <img
                   [src]="imagePreviewUrl"
-                  [alt]="imageName || 'Preview da imagem do produto'"
+                  [alt]="imageName || 'Prévia da imagem do produto'"
                   class="h-28 w-28 rounded-2xl object-cover shadow-sm"
                 />
                 <strong class="mt-4 block text-sm font-medium text-zinc-800">{{ imageName || 'Imagem carregada' }}</strong>
@@ -107,12 +107,12 @@
 
             <ng-template #uploadPlaceholder>
               <span class="text-sm font-medium text-zinc-800">Clique para selecionar uma imagem</span>
-              <span class="mt-2 text-sm text-zinc-500">PNG, JPG ou WEBP com ate 5 MB.</span>
+              <span class="mt-2 text-sm text-zinc-500">PNG, JPG ou WEBP com até 5 MB.</span>
             </ng-template>
           </div>
 
           <div>
-            <label for="price" class="mb-2 block text-sm font-medium text-zinc-700">Preco</label>
+            <label for="price" class="mb-2 block text-sm font-medium text-zinc-700">Preço</label>
             <input
               id="price"
               type="number"
@@ -139,7 +139,7 @@
           </div>
 
           <div class="sm:col-span-2">
-            <label for="description" class="mb-2 block text-sm font-medium text-zinc-700">Descricao</label>
+            <label for="description" class="mb-2 block text-sm font-medium text-zinc-700">Descrição</label>
             <textarea
               id="description"
               rows="5"
@@ -184,7 +184,7 @@
 
         <section class="rounded-3xl border border-zinc-200 bg-white p-6">
           <p class="text-sm font-medium text-zinc-500">Resumo</p>
-          <h2 class="mt-1 text-xl font-semibold">Status do catalogo</h2>
+          <h2 class="mt-1 text-xl font-semibold">Status do catálogo</h2>
 
           <div class="mt-5 grid gap-4 sm:grid-cols-2">
             <div class="rounded-2xl border border-zinc-200 p-4">

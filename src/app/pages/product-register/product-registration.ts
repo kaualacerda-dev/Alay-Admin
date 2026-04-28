@@ -68,7 +68,7 @@ export class ProductRegistrationComponent implements OnDestroy {
         },
         error: (error) => {
           this.message =
-            error?.error?.message || 'Nao foi possivel criar o produto.';
+            error?.error?.message || 'Não foi possível criar o produto.';
           this.messageType = 'error';
           this.changeDetector.detectChanges();
         },
@@ -85,14 +85,14 @@ export class ProductRegistrationComponent implements OnDestroy {
     }
 
     if (!file.type.startsWith('image/')) {
-      this.message = 'Selecione um arquivo de imagem valido.';
+      this.message = 'Selecione um arquivo de imagem válido.';
       this.messageType = 'error';
       this.removeImage(input);
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      this.message = 'A imagem deve ter no maximo 5 MB.';
+      this.message = 'A imagem deve ter no máximo 5 MB.';
       this.messageType = 'error';
       this.removeImage(input);
       return;

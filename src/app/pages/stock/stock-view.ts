@@ -61,7 +61,7 @@ export class StockViewComponent implements OnInit {
         error: () => {
           this.products = [];
           this.totalProducts = 0;
-          this.error = 'Nao foi possivel carregar os produtos.';
+          this.error = 'Não foi possível carregar os produtos.';
           this.changeDetector.detectChanges();
         },
       });
